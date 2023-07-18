@@ -73,7 +73,7 @@ function ServerService:UploadToIndex(tempKey)
     local data = {
         serverId = tempKey,
         uptime = 0,
-        name = "Test",
+        name = tempKey,
         players = userIds
     }
 
@@ -90,6 +90,8 @@ end
 function ServerService:KnitStart()
     self:UploadToIndex("123")
     self:UploadToIndex("234")
+    self:UploadToIndex("567")
+    self:UploadToIndex("890")
 
     while task.wait(5) do
         self:RenderServers()
