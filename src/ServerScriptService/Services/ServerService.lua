@@ -48,6 +48,7 @@ end
 
 function ServerService:GetAllServers()
     local ServerItems = {}
+<<<<<<< HEAD
 
     --Get Servers
     local Success, Items = pcall(ServerIndexMap.GetRangeAsync, ServerIndexMap, Enum.SortDirection.Ascending, 100, nil)
@@ -88,10 +89,14 @@ function ServerService:RenderServers()
 end
 
 function ServerService:KnitStart()
+<<<<<<< HEAD
+=======
+    task.wait(2)
+>>>>>>> 26939da5d32948e36c4900048325e13268d14d78
     self:UploadToIndex("123")
     self:UploadToIndex("234")
 
-    while wait(5) do
+    while task.wait(5) do
         self.OpenServers = self:GetAllServers()
         self:RenderServers()
     end
