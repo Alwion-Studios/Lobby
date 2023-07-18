@@ -13,10 +13,14 @@ Contact me at Marshmelly#0001 if any issues arise.
 
 --Imports
 local packages = game:GetService("ReplicatedStorage").Packages
-local MS = game:GetService("MessagingService")
+local MSS = game:GetService("MemoryStoreService")
 local PS = game:GetService("Players")
 local HTTP = game:GetService("HttpService")
 local Knit = require(packages.Knit)
+local ServerKey = "123"
+
+--Memory Stores
+local ServerIndexMap = MSS:GetSortedMap("ServerIndex")
 
 local ServerService = Knit.CreateService {
     Name = "ServerService";
@@ -38,12 +42,43 @@ function createServer(plr, name, gameID)
     return true
 end
 
+function ServerService:Close()
+    ServerIndexMap:RemoveAsync(ServerKey)
+end
+
+function ServerService:GetAllServers()
+    local ServerItems = {}
+	local StartFrom = nil
+	while true do
+		local Items = ServerIndexMap:GetRangeAsync(Enum.SortDirection.Ascending, 100, StartFrom)
+		for _, Item in ipairs(Items) do
+			table.insert(ServerItems, HTTP:JSONDecode(Item.value))
+		end
+		if #Items < 100 then
+			break
+		end
+		StartFrom = Items[#Items].key
+		wait(3)
+	end
+
+	return ServerItems
+end
+
 function ServerService:KnitStart()
     local server = self
+
     PS.PlayerAdded:Connect(function() 
         self.Client.CreateServer:Connect(createServer)
 
-        MS:SubscribeAsync("ServerStatus", function(data)
+        while wait(5) do
+            self.OpenServers = self:GetAllServers()
+
+            for _, openServer in pairs(self.OpenServers) do
+                server.Client.ServerChanged:FireAll(openServer)
+            end
+        end
+
+        --[[MS:SubscribeAsync("ServerStatus", function(data)
             local fromServer = data.Data
             server.OpenServers[fromServer.serverId] = fromServer
             server.Client.ServerChanged:FireAll(fromServer)
@@ -53,7 +88,7 @@ function ServerService:KnitStart()
             local fromServer = data.Data
             server.OpenServers[fromServer.serverId] = nil
             server.Client.ServerDeleted:FireAll(fromServer)
-        end)
+        end)]]
     end)
 end
 

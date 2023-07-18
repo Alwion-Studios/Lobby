@@ -91,6 +91,15 @@ function ServerController:DeleteServer(id)
     return true
 end
 
+function ServerController:DeleteAllServers()
+    for _, server in pairs(self.ServerGuis) do
+        server:Destroy()
+        server = nil
+    end
+
+    return true
+end
+
 function ServerController:KnitInit()
     StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
     local playerscripts = Player.PlayerScripts
