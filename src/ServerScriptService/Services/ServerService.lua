@@ -93,7 +93,6 @@ function ServerService:KnitStart()
     self:UploadToIndex("234")
 
     while task.wait(5) do
-        self.OpenServers = self:GetAllServers()
         self:RenderServers()
     end
 end
