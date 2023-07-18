@@ -31,11 +31,15 @@ local ServerController = Knit.CreateController {
     PortraitGuiToUse = game:GetService("ReplicatedStorage"):WaitForChild("GUIs"):WaitForChild("Player")
 }
 
+local function hms(seconds)
+	return string.format("%02i:%02i:%02i", seconds/60^2, seconds/60%60, seconds%60)
+end
+
 function ServerController:CreateServerGui(data)
     local TS = Knit.GetService("TeleportService")
     local newGUI = self.ServerGuiToUse:Clone()
-    newGUI.Left.NameOfServer.Text = data["serverId"]
-    newGUI.Left.PlayerCount.Text = #data["players"].. " / ".. "20"
+    newGUI.Left.NameOfServer.Text = data["name"] or data["serverId"]
+    newGUI.Left.PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(data["uptime"])
     
     newGUI.Right.ServerJoin:SetAttribute("serverID", data["serverId"])
     newGUI.Right.ServerJoin:SetAttribute("serverType", "public")
@@ -76,7 +80,7 @@ function ServerController:ServerChange(data)
     if not self.ServerGuis[id] then return self:CreateServerGui(data) end
 
     --Set Player Count
-    self.ServerGuis[id].Left.PlayerCount.Text = #data["players"].. " / ".. "20"
+    self.ServerGuis[id].Left.PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(data["uptime"])
 
     --Set Player Portraits
     self:PlayerPortraits(data["players"], self.ServerGuis[id])

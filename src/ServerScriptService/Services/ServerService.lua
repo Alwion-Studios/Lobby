@@ -68,9 +68,11 @@ function ServerService:KnitStart()
     local server = self
 
     PS.PlayerAdded:Connect(function() 
+        self.OpenServers = self:GetAllServers()
         self.Client.CreateServer:Connect(createServer)
 
-        while wait(5) do
+        --Refresh
+        while wait(10) do
             self.OpenServers = self:GetAllServers()
 
             for _, openServer in pairs(self.OpenServers) do
