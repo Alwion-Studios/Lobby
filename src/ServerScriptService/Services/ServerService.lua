@@ -71,6 +71,23 @@ function ServerService:GetAllServers()
 	return ServerItems
 end
 
+function ServerService:UploadToIndex(tempKey)
+    local userIds = {}
+
+    for _, player in pairs(game.Players:GetPlayers()) do
+        table.insert(userIds, player.UserId)
+    end
+
+    local data = {
+        serverId = tempKey,
+        uptime = self.uptime,
+        name = self.ServerName,
+        players = userIds
+    }
+
+    ServerIndexMap:SetAsync(tempKey, HTTP:JSONEncode(data), 10)
+end
+
 function ServerService:RenderServers()
     for _, openServer in pairs(self.OpenServers) do
         self.Client.RefreshServers:FireAll(openServer)
@@ -78,6 +95,10 @@ function ServerService:RenderServers()
 end
 
 function ServerService:KnitStart()
+    wait(2)
+    self:UploadToIndex("123")
+    self:UploadToIndex("234")
+    
     while wait() do
         self.OpenServers = self:GetAllServers()
         self:RenderServers()
