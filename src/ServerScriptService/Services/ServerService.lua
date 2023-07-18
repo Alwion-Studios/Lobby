@@ -14,33 +14,58 @@ Contact me at Marshmelly#0001 if any issues arise.
 --Imports
 local packages = game:GetService("ReplicatedStorage").Packages
 local MS = game:GetService("MessagingService")
+local HTTP = game:GetService("HttpService")
 local Knit = require(packages.Knit)
 
 local ServerService = Knit.CreateService {
     Name = "ServerService";
-    Servers = {}
+    Client = {
+        CreateServer = Knit.CreateSignal(),
+        ReplicateServerChange = Knit.CreateSignal(),
+        ServerChanged = Knit.CreateSignal(),
+        ServerDeleted = Knit.CreateSignal(),
+    },
+    OpenServers = {}
 }
 
-function ServerService:KnitStart()
-    MS:SubscribeAsync("ServerList", function(data) 
-       --[[ local server = data.Data
+function checkGamepass(plr, id)
+    return game:GetService("MarketplaceService"):UserOwnsGamePassAsync(plr.UserId, id) or false
+end
 
-        if server.serverId ~= game.JobId then
-            local serverTbl = {}
-            serverTbl["ID"] = server.serverId
-            serverTbl["MemberCount"] = server.players
-            table.insert(self.Servers, serverTbl)
-            wait(5)
-            serverTbl = nil
-        end]]
-        print(data)
+function createServer(plr, name, gameID)
+    if not checkGamepass(plr, 111306708) or not checkGamepass(plr, 26328389) then return false end
+    return true
+end
+
+function ServerService:KnitStart()
+    local server = self
+
+    self.Client.CreateServer:Connect(createServer)
+
+    MS:SubscribeAsync("ServerStatus", function(data)
+        local fromServer = data.Data
+        server.OpenServers[fromServer.serverId] = fromServer
+        server.Client.ServerChanged:FireAll(fromServer)
     end)
 
+    MS:SubscribeAsync("ClosedServer", function(data)
+        local fromServer = data.Data
+        server.OpenServers[fromServer.serverId] = nil
+    end)
+
+    local userIds = {}
+
+    for _, player in pairs(game.Players:GetPlayers()) do
+        table.insert(userIds, player.UserId)
+    end
+
+    local data = {
+        serverId = "123",
+        players = userIds
+    }
+
     while wait(5) do
-        MS:PublishAsync("ServerList", {
-            serverId = game.JobId,
-            players = #game.Players:GetPlayers()
-        })
+        MS:PublishAsync("ServerStatus", data)
     end
 end
 
