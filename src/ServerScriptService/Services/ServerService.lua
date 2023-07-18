@@ -52,15 +52,20 @@ function ServerService:GetAllServers()
     
     --Get Servers
     while true do
-		local Items = ServerIndexMap:GetRangeAsync(Enum.SortDirection.Ascending, 100, StartFrom)
-		for _, Item in ipairs(Items) do
+		-- local Items = ServerIndexMap:GetRangeAsync(Enum.SortDirection.Ascending, 100, StartFrom)
+        local Success, Items = pcall(ServerIndexMap.GetRangeAsync, ServerIndexMap, Enum.SortDirection.Ascending, 100, StartFrom)
+
+        if Success then
+            for _, Item in ipairs(Items) do
 			table.insert(ServerItems, HTTP:JSONDecode(Item.value))
-		end
-		if #Items < 100 then
-			break
-		end
-		StartFrom = Items[#Items].key
-		wait(3)
+            end
+            if #Items < 100 then
+                break
+            end
+            StartFrom = Items[#Items].key
+        end
+        
+		task.wait(3)
 	end
 
 	return ServerItems
