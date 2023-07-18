@@ -86,6 +86,7 @@ end
 function ServerController:ServerChange(data)
     local id = data["serverId"]
     if not self.ServerGuis[id] then return self:CreateServerGui(data) end
+	if not data["players"] or #data["players"] >= 0 then return self:DeleteServer(id) end
 
     --Set Player Count
     self.ServerGuis[id].Left.PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(data["uptime"])
