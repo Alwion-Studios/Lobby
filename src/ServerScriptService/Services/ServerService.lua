@@ -53,20 +53,6 @@ function ServerService:KnitStart()
         server.OpenServers[fromServer.serverId] = nil
         server.Client.ServerDeleted:FireAll(fromServer)
     end)
-
-    local userIds = {}
-
-    for _, player in pairs(game.Players:GetPlayers()) do
-        table.insert(userIds, player.UserId)
-    end
-
-    local data = {
-        serverId = "123",
-        players = userIds
-    }
-
-    wait(5)
-    MS:PublishAsync("ServerStatus", data)
 end
 
 return ServerService
