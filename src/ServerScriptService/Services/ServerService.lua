@@ -51,6 +51,7 @@ function ServerService:KnitStart()
     MS:SubscribeAsync("ClosedServer", function(data)
         local fromServer = data.Data
         server.OpenServers[fromServer.serverId] = nil
+        server.Client.ServerDeleted:FireAll(fromServer)
     end)
 
     local userIds = {}
@@ -64,9 +65,8 @@ function ServerService:KnitStart()
         players = userIds
     }
 
-    while wait(5) do
-        MS:PublishAsync("ServerStatus", data)
-    end
+    wait(5)
+    MS:PublishAsync("ServerStatus", data)
 end
 
 return ServerService
