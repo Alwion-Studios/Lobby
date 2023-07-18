@@ -1,1 +1,11 @@
-/Packages
+/sourcemap.json
+/*.rbxm
+/*.rbxmx
+/*.rbxl
+/*.rbxlx
+/*.lock
+
+Redundant
+Packages
+src/ServerStorage/Settings.Lua
+src/ServerStorage/TrelloSettings.Lua
