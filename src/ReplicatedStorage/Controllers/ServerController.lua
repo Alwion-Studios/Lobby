@@ -36,13 +36,21 @@ local function hms(seconds)
 end
 
 function ServerController:CreateServerGui(data)
+    local uptime = data["uptime"] or 0
     local TS = Knit.GetService("TeleportService")
     local newGUI = self.ServerGuiToUse:Clone()
     newGUI.Left.NameOfServer.Text = data["name"] or data["serverId"]
-    newGUI.Left.PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(data["uptime"])
+    newGUI.Left.PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(uptime)
     
     newGUI.Right.ServerJoin:SetAttribute("serverID", data["serverId"])
     newGUI.Right.ServerJoin:SetAttribute("serverType", "public")
+
+    task.spawn(function() --Autosave
+        repeat wait(1) -- 10 minutes
+            uptime += 1
+            newGUI.Left.PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(uptime)
+        until false
+    end)
 
     --Add to Collection
     self.ServerGuis[data["serverId"]] = newGUI
