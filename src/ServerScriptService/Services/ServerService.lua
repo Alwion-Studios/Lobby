@@ -88,7 +88,6 @@ function ServerService:RenderServers()
 end
 
 function ServerService:KnitStart()
-    task.wait(2)
     self:UploadToIndex("123")
     self:UploadToIndex("234")
 
