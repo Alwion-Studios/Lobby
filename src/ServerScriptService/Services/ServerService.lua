@@ -14,6 +14,7 @@ Contact me at Marshmelly#0001 if any issues arise.
 --Imports
 local packages = game:GetService("ReplicatedStorage").Packages
 local MS = game:GetService("MessagingService")
+local PS = game:GetService("Players")
 local HTTP = game:GetService("HttpService")
 local Knit = require(packages.Knit)
 
@@ -39,19 +40,20 @@ end
 
 function ServerService:KnitStart()
     local server = self
+    PS.PlayerAdded:Connect(function() 
+        self.Client.CreateServer:Connect(createServer)
 
-    self.Client.CreateServer:Connect(createServer)
-
-    MS:SubscribeAsync("ServerStatus", function(data)
-        local fromServer = data.Data
-        server.OpenServers[fromServer.serverId] = fromServer
-        server.Client.ServerChanged:FireAll(fromServer)
-    end)
-
-    MS:SubscribeAsync("ClosedServer", function(data)
-        local fromServer = data.Data
-        server.OpenServers[fromServer.serverId] = nil
-        server.Client.ServerDeleted:FireAll(fromServer)
+        MS:SubscribeAsync("ServerStatus", function(data)
+            local fromServer = data.Data
+            server.OpenServers[fromServer.serverId] = fromServer
+            server.Client.ServerChanged:FireAll(fromServer)
+        end)
+    
+        MS:SubscribeAsync("ClosedServer", function(data)
+            local fromServer = data.Data
+            server.OpenServers[fromServer.serverId] = nil
+            server.Client.ServerDeleted:FireAll(fromServer)
+        end)
     end)
 end
 

@@ -14,6 +14,7 @@ Contact me at Marshmelly#0001 if any issues arise.
 local packages = game:GetService("ReplicatedStorage").Packages
 local Knit = require(packages.Knit)
 local Players = game:GetService("Players")
+local StarterGui = game:GetService('StarterGui')
 
 --Player
 local Player = Players.LocalPlayer
@@ -31,15 +32,25 @@ local ServerController = Knit.CreateController {
 }
 
 function ServerController:CreateServerGui(data)
+    local TS = Knit.GetService("TeleportService")
     local newGUI = self.ServerGuiToUse:Clone()
     newGUI.Left.NameOfServer.Text = data["serverId"]
     newGUI.Left.PlayerCount.Text = #data["players"].. " / ".. "20"
     
+    newGUI.Right.ServerJoin:SetAttribute("serverID", data["serverId"])
+    newGUI.Right.ServerJoin:SetAttribute("serverType", "public")
+
     --Add to Collection
     self.ServerGuis[data["serverId"]] = newGUI
 
     --Add Players
     self:PlayerPortraits(data["players"], newGUI)
+
+    --Join Button
+    newGUI.Right.ServerJoin.MouseButton1Click:Connect(function()
+        print(true)
+        TS:TeleportRequestToInstance(newGUI.Right.ServerJoin:GetAttribute("serverID"), newGUI.Right.ServerJoin:GetAttribute("serverType"))
+    end)
 
     --Display
     newGUI.Parent = List
@@ -81,6 +92,12 @@ function ServerController:DeleteServer(id)
 end
 
 function ServerController:KnitInit()
+    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+    local playerscripts = Player.PlayerScripts
+    local playermodule = require(playerscripts:WaitForChild("PlayerModule"))
+    local controls = playermodule:GetControls()
+    controls:Disable()
+
     local ServerService = Knit.GetService("ServerService")
 
     Buttons.PlayButton.MouseButton1Click:Connect(function()
