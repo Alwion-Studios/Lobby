@@ -51,22 +51,22 @@ function ServerService:GetAllServers()
 	local StartFrom = nil
     
     --Get Servers
-    while true do
+    -- while true do
 		-- local Items = ServerIndexMap:GetRangeAsync(Enum.SortDirection.Ascending, 100, StartFrom)
-        local Success, Items = pcall(ServerIndexMap.GetRangeAsync, ServerIndexMap, Enum.SortDirection.Ascending, 100, StartFrom)
+    local Success, Items = pcall(ServerIndexMap.GetRangeAsync, ServerIndexMap, Enum.SortDirection.Ascending, 100, StartFrom)
 
-        if Success then
-            for _, Item in ipairs(Items) do
-			table.insert(ServerItems, HTTP:JSONDecode(Item.value))
-            end
-            if #Items < 100 then
-                break
-            end
-            StartFrom = Items[#Items].key
+    if Success then
+        for _, Item in ipairs(Items) do
+        table.insert(ServerItems, HTTP:JSONDecode(Item.value))
         end
+            -- if #Items < 100 then
+            --     break
+            -- end
+            -- StartFrom = Items[#Items].key
+    end
         
-		task.wait(3)
-	end
+		-- task.wait(3)
+	-- end
 
 	return ServerItems
 end
@@ -98,11 +98,11 @@ function ServerService:RenderServers()
 end
 
 function ServerService:KnitStart()
-    wait(2)
+    task.wait(2)
     self:UploadToIndex("123")
     self:UploadToIndex("234", true)
 
-    while wait(5) do
+    while task.wait(5) do
         self.OpenServers = self:GetAllServers()
         self:RenderServers()
     end
