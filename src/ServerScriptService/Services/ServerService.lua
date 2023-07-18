@@ -73,7 +73,7 @@ function ServerService:UploadToIndex(tempKey)
     local data = {
         serverId = tempKey,
         uptime = 0,
-        name = self.ServerName,
+        name = "Test",
         players = userIds
     }
 
