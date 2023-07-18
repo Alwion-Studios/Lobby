@@ -36,14 +36,15 @@ local function hms(seconds)
 end
 
 function ServerController:CreateServerGui(data)
+    print(data)
     local uptime = data["uptime"]
     local TS = Knit.GetService("TeleportService")
     local newGUI = self.ServerGuiToUse:Clone()
-    newGUI.Left.NameOfServer.Text = data["name"] or data["serverId"]
-    newGUI.Left.PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(uptime)
+    newGUI:WaitForChild("Left").NameOfServer.Text = data["name"] or data["serverId"]
+    newGUI:WaitForChild("Left").PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(uptime)
     
-    newGUI.Right.ServerJoin:SetAttribute("serverID", data["serverId"])
-    newGUI.Right.ServerJoin:SetAttribute("serverType", "public")
+    newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverID", data["serverId"])
+    newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverType", "public")
 
     --Add to Collection
     self.ServerGuis[data["serverId"]] = newGUI
@@ -52,7 +53,7 @@ function ServerController:CreateServerGui(data)
     self:PlayerPortraits(data["players"], newGUI)
 
     --Join Button
-    newGUI.Right.ServerJoin.MouseButton1Click:Connect(function()
+    newGUI:WaitForChild("Right").ServerJoin.MouseButton1Click:Connect(function()
         print(true)
         TS:TeleportRequestToInstance(newGUI.Right.ServerJoin:GetAttribute("serverID"), newGUI.Right.ServerJoin:GetAttribute("serverType"))
     end)
@@ -79,7 +80,7 @@ end
 function ServerController:ServerChange(data)
     local id = data["serverId"]
     if not self.ServerGuis[id] then return self:CreateServerGui(data) end
-	if not data["players"] or #data["players"] <= 0 then return self:DeleteServer(id) end
+	if not data["players"] or #data["players"] >= 0 then return self:DeleteServer(id) end
 
     --Set Player Count
     self.ServerGuis[id].Left.PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(data["uptime"])

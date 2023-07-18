@@ -25,9 +25,6 @@ local TeleportService = Knit.CreateService {
 }
 
 function TeleportService.Client:TeleportRequestToInstance(player, id, serverType)
-    print(true)
-    print(serverType)
-    print(id)
     if serverType ~= "public" then return false end
     TS:TeleportToPlaceInstance(self.Server.LatestServer, id, player)
 end

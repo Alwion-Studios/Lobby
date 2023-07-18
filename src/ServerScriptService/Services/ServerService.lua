@@ -48,38 +48,28 @@ end
 
 function ServerService:GetAllServers()
     local ServerItems = {}
-	local StartFrom = nil
-    
-    --Get Servers
-    while true do
-		-- local Items = ServerIndexMap:GetRangeAsync(Enum.SortDirection.Ascending, 100, StartFrom)
-        local Success, Items = pcall(ServerIndexMap.GetRangeAsync, ServerIndexMap, Enum.SortDirection.Ascending, 100, StartFrom)
 
-        if Success then
-            for _, Item in ipairs(Items) do
-			table.insert(ServerItems, HTTP:JSONDecode(Item.value))
-            end
-            if #Items < 100 then
-                break
-            end
-            StartFrom = Items[#Items].key
+    --Get Servers
+    local Success, Items = pcall(ServerIndexMap.GetRangeAsync, ServerIndexMap, Enum.SortDirection.Ascending, 100, nil)
+
+    if Success then
+        for _, Item in ipairs(Items) do
+            table.insert(ServerItems, HTTP:JSONDecode(Item.value))
         end
-        
-		task.wait(3)
-	end
+    end
+    
+    task.wait(3)
 
 	return ServerItems
 end
 
-function ServerService:UploadToIndex(tempKey, plrs)
+function ServerService:UploadToIndex(tempKey)
     local userIds = {}
 
     for _, player in pairs(game.Players:GetPlayers()) do
         table.insert(userIds, player.UserId)
     end
-
-    if plrs then userIds = {} end
-
+    
     local data = {
         serverId = tempKey,
         uptime = 0,
@@ -98,9 +88,8 @@ function ServerService:RenderServers()
 end
 
 function ServerService:KnitStart()
-    wait(2)
     self:UploadToIndex("123")
-    self:UploadToIndex("234", true)
+    self:UploadToIndex("234")
 
     while wait(5) do
         self.OpenServers = self:GetAllServers()
