@@ -11,7 +11,6 @@ Contact me at Marshmelly#0001 if any issues arise.
 ]]
 
 --Imports
-local HttpService = game:GetService("HttpService")
 local packages = game:GetService("ReplicatedStorage").Packages
 local Knit = require(packages.Knit)
 local Players = game:GetService("Players")
@@ -78,7 +77,6 @@ function ServerController:PlayerPortraits(userIds, frame)
 end
 
 function ServerController:ServerChange(data)
-    print(HttpService:JSONDecode(data))
     local id = data["serverId"]
     if not self.ServerGuis[id] then return self:CreateServerGui(data) end
 	if not data["players"] or #data["players"] <= 0 then return self:DeleteServer(id) end
