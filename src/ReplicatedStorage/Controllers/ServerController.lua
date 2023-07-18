@@ -36,7 +36,8 @@ local function hms(seconds)
 end
 
 function ServerController:CreateServerGui(data)
-    print(data)
+    if not data["players"] or #data["players"] <= 0 then return self:DeleteServer(data["serverId"]) end
+
     local uptime = data["uptime"]
     local TS = Knit.GetService("TeleportService")
     local newGUI = self.ServerGuiToUse:Clone()
@@ -80,7 +81,7 @@ end
 function ServerController:ServerChange(data)
     local id = data["serverId"]
     if not self.ServerGuis[id] then return self:CreateServerGui(data) end
-	if not data["players"] or #data["players"] >= 0 then return self:DeleteServer(id) end
+	if not data["players"] or #data["players"] <= 0 then return self:DeleteServer(id) end
 
     --Set Player Count
     self.ServerGuis[id].Left.PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(data["uptime"])
@@ -119,6 +120,7 @@ function ServerController:KnitInit()
     end)
 
     ServerService.RefreshServers:Connect(function(data) 
+        print(true)
         self:ServerChange(data)
     end)
 end
