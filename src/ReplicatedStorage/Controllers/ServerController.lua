@@ -36,7 +36,7 @@ local function hms(seconds)
 end
 
 function ServerController:CreateServerGui(data)
-    local uptime = data["uptime"] or 0
+    local uptime = data["uptime"]
     local TS = Knit.GetService("TeleportService")
     local newGUI = self.ServerGuiToUse:Clone()
     newGUI.Left.NameOfServer.Text = data["name"] or data["serverId"]
@@ -104,9 +104,9 @@ function ServerController:DeleteServer(id)
 end
 
 function ServerController:DeleteAllServers()
-    for _, server in pairs(self.ServerGuis) do
+    for id, server in pairs(self.ServerGuis) do
         server:Destroy()
-        server = nil
+        self.ServerGuis[id] = nil
     end
 
     return true
@@ -127,12 +127,14 @@ function ServerController:KnitInit()
     end)
 
     ServerService.CreateServer:Fire("test", "test")
+
     ServerService.ServerChanged:Connect(function(data) 
         self:ServerChange(data)
     end)
 
-    ServerService.ServerDeleted:Connect(function(data) 
-        self:DeleteServer(data["serverId"])
+    ServerService.RefreshServers:Connect(function(data) 
+        self:DeleteAllServers()
+        self:ServerChange(data)
     end)
 end
 

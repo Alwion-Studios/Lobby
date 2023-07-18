@@ -28,7 +28,7 @@ local ServerService = Knit.CreateService {
         CreateServer = Knit.CreateSignal(),
         ReplicateServerChange = Knit.CreateSignal(),
         ServerChanged = Knit.CreateSignal(),
-        ServerDeleted = Knit.CreateSignal(),
+        RefreshServers = Knit.CreateSignal(),
     },
     OpenServers = {}
 }
@@ -49,7 +49,9 @@ end
 function ServerService:GetAllServers()
     local ServerItems = {}
 	local StartFrom = nil
-	while true do
+    
+    --Get Servers
+    while true do
 		local Items = ServerIndexMap:GetRangeAsync(Enum.SortDirection.Ascending, 100, StartFrom)
 		for _, Item in ipairs(Items) do
 			table.insert(ServerItems, HTTP:JSONDecode(Item.value))
@@ -64,34 +66,17 @@ function ServerService:GetAllServers()
 	return ServerItems
 end
 
+function ServerService:RenderServers()
+    for _, openServer in pairs(self.OpenServers) do
+        self.Client.RefreshServers:FireAll(openServer)
+    end
+end
+
 function ServerService:KnitStart()
-    local server = self
-
-    PS.PlayerAdded:Connect(function() 
+    while wait() do
         self.OpenServers = self:GetAllServers()
-        self.Client.CreateServer:Connect(createServer)
-
-        --Refresh
-        while wait(10) do
-            self.OpenServers = self:GetAllServers()
-
-            for _, openServer in pairs(self.OpenServers) do
-                server.Client.ServerChanged:FireAll(openServer)
-            end
-        end
-
-        --[[MS:SubscribeAsync("ServerStatus", function(data)
-            local fromServer = data.Data
-            server.OpenServers[fromServer.serverId] = fromServer
-            server.Client.ServerChanged:FireAll(fromServer)
-        end)
-    
-        MS:SubscribeAsync("ClosedServer", function(data)
-            local fromServer = data.Data
-            server.OpenServers[fromServer.serverId] = nil
-            server.Client.ServerDeleted:FireAll(fromServer)
-        end)]]
-    end)
+        self:RenderServers()
+    end
 end
 
 return ServerService
