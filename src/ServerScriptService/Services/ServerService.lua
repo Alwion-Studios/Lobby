@@ -81,11 +81,7 @@ function ServerService:UploadToIndex(tempKey)
 end
 
 function ServerService:RenderServers()
-    print(true)
-    
     self.OpenServers = self:GetAllServers()
-
-    print(self.OpenServers)
 
     for _, openServer in pairs(self.OpenServers) do
         self.Client.RefreshServers:FireAll(openServer)
@@ -94,7 +90,6 @@ end
 
 function ServerService:KnitStart()
     while task.wait() do
-        print(true)
         self:RenderServers()
     end
 end

@@ -64,7 +64,6 @@ function ServerController:CreateServerGui(data)
 
     --Join Button
     newGUI:WaitForChild("Right").ServerJoin.MouseButton1Click:Connect(function()
-        print(true)
         TS:TeleportRequestToInstance(newGUI.Right.ServerJoin:GetAttribute("serverID"), newGUI.Right.ServerJoin:GetAttribute("serverType"))
     end)
 
@@ -129,7 +128,6 @@ function ServerController:KnitInit()
     end)
 
     ServerService.RefreshServers:Connect(function(data) 
-        print(true)
         self:ServerChange(data)
     end)
 end

@@ -24,12 +24,18 @@ local TeleportService = Knit.CreateService {
     LatestServer = 14105573507 -- Melly's V1
 }
 
+function checkPermissions(player, groupId, rankId)
+    return player:GetRankInGroup(groupId) >= rankId or false
+end
+
 function TeleportService.Client:TeleportRequestToInstance(player, id, serverType)
+    if not checkPermissions(player, 12523090, 99) then return false end
     if serverType ~= "public" then return false end
     TS:TeleportToPlaceInstance(self.Server.LatestServer, id, player)
 end
 
 function TeleportService.Client:TeleportRequest(player)
+    if not checkPermissions(player, 12523090, 99) then return false end
     TS:TeleportAsync(self.Server.LatestServer, {player})
 end
 
