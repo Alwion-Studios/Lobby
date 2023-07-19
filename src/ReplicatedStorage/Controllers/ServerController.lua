@@ -29,12 +29,17 @@ local User = Player.PlayerGui:WaitForChild("MellyCore"):WaitForChild("User")
 local Buttons = HoldUI:WaitForChild("Buttons")
 local List = HoldUI:WaitForChild("ServerList"):WaitForChild("List")
 local Options = HoldUI:WaitForChild("ServerList"):WaitForChild("Options")
+local SearchBox = Options:WaitForChild("Left").SearchInput
+
+--Random
+local isSearching = false
 
 --Server Object
 local serverObj = require(script.Parent.Parent.Components.ServerGui)
 
 local ServerController = Knit.CreateController {
     Name = "ServerController";
+    OpenServers = {},
     ServerGuis = {},
     ServerGuiToUse = game:GetService("ReplicatedStorage"):WaitForChild("GUIs"):WaitForChild("Server"),
     PortraitGuiToUse = game:GetService("ReplicatedStorage"):WaitForChild("GUIs"):WaitForChild("Player")
@@ -65,25 +70,79 @@ end
 function ServerController:DeleteServer(id)
     if not self.ServerGuis[id] then return false end
 
+    self.OpenServers[id] = nil
     self.ServerGuis[id]:Destroy()
     self.ServerGuis[id] = nil
 
     return true
 end
 
-function ServerController:Refresh()
+function ServerController:Refresh(tbl)
     local ServerService = Knit.GetService("ServerService")
 
-    for id, renderedServer in pairs(self.ServerGuis) do
-        renderedServer:Destroy()
-        self.ServerGuis[id] = nil
+    if isSearching and tbl and typeof(tbl) == "table" then
+
+        for id, _ in pairs(self.ServerGuis) do
+            if tbl[id] then continue end
+            self:DeleteServer(id)
+        end
+
+        for id, openServer in pairs(tbl) do
+            if not self.OpenServers[id] then continue end
+            self:ServerChange(self.OpenServers[id])
+        end
+        return
     end
 
+    for id, _ in pairs(self.ServerGuis) do
+        self:DeleteServer(id)
+    end
+    
     ServerService:GetAllServers():andThen(function(value)
         for _, openServer in pairs(value) do
+            self.OpenServers[openServer["serverId"]] = openServer
             self:ServerChange(openServer)
         end
     end)
+end
+
+function ServerController:Search(input)
+    local isMatch = {}
+    local hasBeenFound = nil
+
+    if #input <= 0 then 
+        isSearching = false
+        self:Refresh()
+        return nil
+    end
+
+    for id, server in pairs(self.ServerGuis) do
+        if id == input then
+            hasBeenFound = id
+        end
+
+        isSearching = true
+        local str = server.Name
+
+        for x=1, #str do
+            local char=str:sub(x,x)
+            for y=1, #input do
+                local inputChar = input:sub(y,y)
+                if inputChar ~= char 
+                   or y > #str+1 
+                   or input == str
+                then continue end
+                isMatch[id] = server
+            end
+        end
+    end
+
+    if hasBeenFound then 
+        local tbl = {}
+        tbl[hasBeenFound] = self.OpenServers[hasBeenFound]
+        return self:Refresh(tbl) 
+    end
+    self:Refresh(isMatch)
 end
 
 function ServerController:KnitStart()
@@ -101,6 +160,7 @@ function ServerController:KnitStart()
     local ServerService = Knit.GetService("ServerService")
 
     Options:WaitForChild("Right").Refresh.MouseButton1Click:Connect(function()
+        isSearching = false
         self:Refresh()
     end)
 
@@ -117,6 +177,16 @@ function ServerController:KnitStart()
 
     ServerService.RefreshServers:Connect(function() 
         self:Refresh()
+    end)
+
+    SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+        if #SearchBox.Text < 1 then 
+            isSearching = false 
+            self:Refresh()
+            return false 
+        end
+
+        self:Search(SearchBox.Text)
     end)
 
     wait(4)
