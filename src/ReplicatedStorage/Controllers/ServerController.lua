@@ -21,9 +21,17 @@ local Player = Players.LocalPlayer
 
 --UIs
 local HoldUI = Player.PlayerGui:WaitForChild("MellyCore"):WaitForChild("Hold")
+
+--Player Information
+local User = Player.PlayerGui:WaitForChild("MellyCore"):WaitForChild("User")
+
+--Server List
 local Buttons = HoldUI:WaitForChild("Buttons")
 local List = HoldUI:WaitForChild("ServerList"):WaitForChild("List")
 local Options = HoldUI:WaitForChild("ServerList"):WaitForChild("Options")
+
+--Server Object
+local serverObj = require(script.Parent.Parent.Components.ServerGui)
 
 local ServerController = Knit.CreateController {
     Name = "ServerController";
@@ -36,72 +44,22 @@ local function hms(seconds)
 	return string.format("%02i:%02i:%02i", seconds/60^2, seconds/60%60, seconds%60)
 end
 
-function ServerController:CreateServerGui(data)
-    if not data["players"] or #data["players"] <= 0 then return self:DeleteServer(data["serverId"]) end
-
-    local uptime = data["uptime"]
-    local TS = Knit.GetService("TeleportService")
-    local newGUI = self.ServerGuiToUse:Clone()
-    newGUI:WaitForChild("Left").NameOfServer.Text = data["name"] or data["serverId"]
-    newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").PlayerCount.Text = #data["players"].. " / ".. "20" or "0 / 0"
-    newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").Version.Text = data["version"] or "1.0"
-    
-    newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverID", data["serverId"])
-    newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverType", "public")
-
-    --Set the Uptime Counter
-    --[[task.spawn(function() --Uptime Counter
-        repeat wait(1)
-            uptime += 1
-            newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").Uptime.Text = hms(uptime)
-        until false
-    end)]]
-
-    --Add to Collection
-    self.ServerGuis[data["serverId"]] = newGUI
-
-    --Add Players
-    self:PlayerPortraits(data["players"], newGUI)
-
-    --Join Button
-    newGUI:WaitForChild("Right").ServerJoin.MouseButton1Click:Connect(function()
-        TS:TeleportRequestToInstance(newGUI.Right.ServerJoin:GetAttribute("serverID"), newGUI.Right.ServerJoin:GetAttribute("serverType"))
-    end)
-
-    --Display
-    newGUI.Parent = List
-end
-
-function ServerController:PlayerPortraits(userIds, frame)
-    local PlayersList = frame:WaitForChild("Right"):WaitForChild("Players")
-    
-    --Destroy all Portraits
-    for _, portrait in pairs(PlayersList:GetChildren()) do
-        if not portrait:IsA("ImageLabel") then continue end
-        portrait:Destroy()
-    end
-
-    for x, id in pairs(userIds) do
-        local newPortrait = self.PortraitGuiToUse:Clone()
-        newPortrait.Image = Players:GetUserThumbnailAsync(id, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-        newPortrait.Name = tostring(x)
-        newPortrait.ZIndex = x
-        newPortrait.Parent = PlayersList
-    end
-end
-
 function ServerController:ServerChange(data)
     if typeof(data) ~= "table" or #data < 0 then return false end
-    if not self.ServerGuis[data["serverId"]] then return self:CreateServerGui(data) end
+
+    if not self.ServerGuis[data["serverId"]] then 
+        self.ServerGuis[data["serverId"]] = serverObj.New(data["name"], data["serverId"], data["uptime"], data["players"], data["version"])
+    end
+
 	if not data["players"] or #data["players"] <= 0 then return self:DeleteServer(data["serverId"]) end
 
     local id = data["serverId"]
 
     --Set Player Count
-    self.ServerGuis[id]:WaitForChild("Left"):WaitForChild("ServerInfo").PlayerCount.Text = #data["players"].. " / ".. "20"
+    self.ServerGuis[id].GUI:WaitForChild("Left"):WaitForChild("ServerInfo").PlayerCount.Text = #data["players"].. " / ".. "20"
 
     --Set Player Portraits
-    self:PlayerPortraits(data["players"], self.ServerGuis[id])
+    self.ServerGuis[id]:PlayerPortraits(data["players"], self.ServerGuis[id].GUI)
 end
 
 function ServerController:DeleteServer(id)
@@ -134,6 +92,11 @@ function ServerController:KnitStart()
     local playermodule = require(playerscripts:WaitForChild("PlayerModule"))
     local controls = playermodule:GetControls()
     controls:Disable()
+
+    --Configure User Info
+    User:WaitForChild("Avatar").Image = Players:GetUserThumbnailAsync(Player.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+    User:WaitForChild("Details").Username.Text = Player.Name
+    User:WaitForChild("Details").Rank.Text = Player:GetRoleInGroup(12523090)
 
     local ServerService = Knit.GetService("ServerService")
 
