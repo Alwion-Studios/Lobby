@@ -43,6 +43,7 @@ function ServerController:CreateServerGui(data)
     local newGUI = self.ServerGuiToUse:Clone()
     newGUI:WaitForChild("Left").NameOfServer.Text = data["name"] or data["serverId"]
     newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").PlayerCount.Text = #data["players"].. " / ".. "20"
+    newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").Version.Text = data["version"]
     
     newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverID", data["serverId"])
     newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverType", "public")
