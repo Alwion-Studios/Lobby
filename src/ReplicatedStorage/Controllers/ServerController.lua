@@ -23,6 +23,7 @@ local Player = Players.LocalPlayer
 local HoldUI = Player.PlayerGui:WaitForChild("MellyCore"):WaitForChild("Hold")
 local Buttons = HoldUI:WaitForChild("Buttons")
 local List = HoldUI:WaitForChild("ServerList"):WaitForChild("List")
+local Options = HoldUI:WaitForChild("ServerList"):WaitForChild("Options")
 
 local ServerController = Knit.CreateController {
     Name = "ServerController";
@@ -112,7 +113,22 @@ function ServerController:DeleteServer(id)
     return true
 end
 
-function ServerController:KnitInit()
+function ServerController:Refresh()
+    local ServerService = Knit.GetService("ServerService")
+
+    for id, renderedServer in pairs(self.ServerGuis) do
+        renderedServer:Destroy()
+        self.ServerGuis[id] = nil
+    end
+
+    ServerService:GetAllServers():andThen(function(value)
+        for _, openServer in pairs(value) do
+            self:ServerChange(openServer)
+        end
+    end)
+end
+
+function ServerController:KnitStart()
     StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
     local playerscripts = Player.PlayerScripts
     local playermodule = require(playerscripts:WaitForChild("PlayerModule"))
@@ -120,6 +136,10 @@ function ServerController:KnitInit()
     controls:Disable()
 
     local ServerService = Knit.GetService("ServerService")
+
+    Options:WaitForChild("Right").Refresh.MouseButton1Click:Connect(function()
+        self:Refresh()
+    end)
 
     Buttons.PlayButton.MouseButton1Click:Connect(function()
         local teleportService = Knit.GetService("TeleportService")
@@ -132,23 +152,16 @@ function ServerController:KnitInit()
         self:ServerChange(data)
     end)
 
-    ServerService.RefreshServers:Connect(function(data) 
-        self:ServerChange(data)
+    ServerService.RefreshServers:Connect(function() 
+        self:Refresh()
     end)
 
-    task.spawn(function() --Refresh
-        repeat wait(5)
-            for id, renderedServer in pairs(self.ServerGuis) do
-                renderedServer:Destroy()
-                self.ServerGuis[id] = nil
-            end
+    wait(4)
+    self:Refresh()
 
-            ServerService:GetAllServers():andThen(function(value)
-                for _, openServer in pairs(value) do
-                    print(openServer)
-                    self:ServerChange(openServer)
-                end
-            end)
+    task.spawn(function() --Refresh
+        repeat wait(20)
+            self:Refresh()
         until false
     end)
 end

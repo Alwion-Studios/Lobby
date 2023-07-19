@@ -67,12 +67,8 @@ function ServerService:GetAllServers()
 	return ServerItems
 end
 
-function ServerService:RenderServers()
+function ServerService:RefreshServerList()
     self.OpenServers = self:GetAllServers()
-
-    for _, openServer in pairs(self.OpenServers) do
-        self.Client.RefreshServers:FireAll(openServer)
-    end
 end
 
 local function randomisedPlayer() 
@@ -101,18 +97,17 @@ function ServerService:UploadToIndex(serverKeyTest)
         version = "1.0"
     }
 
-    print(data)
     ServerIndexMap:SetAsync(serverKeyTest, HTTP:JSONEncode(data), 240)
 end
 
 function ServerService:KnitStart()
-    wait(game.Loaded)
-    --[[self:UploadToIndex("123")
+    wait(1)
+    self:UploadToIndex("123")
     self:UploadToIndex("456")
-    self:UploadToIndex("789")]]
+    self:UploadToIndex("789")
 
     while task.wait() do
-        self:RenderServers()
+        self:RefreshServerList()
     end
 end
 
