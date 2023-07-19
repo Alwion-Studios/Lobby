@@ -63,21 +63,42 @@ function ServerService:GetAllServers()
 	return ServerItems
 end
 
-function ServerService:UploadToIndex(tempKey)
+
+local function randomisedPlayer() 
+    return PS:GetPlayers()[math.random(#PS:GetPlayers())]
+end
+
+function ServerService:UploadToIndex(jobId)
     local userIds = {}
 
-    for _, player in pairs(game.Players:GetPlayers()) do
+    --[[for _, player in pairs(game.Players:GetPlayers()) do
         table.insert(userIds, player.UserId)
+    end]]
+
+    local currPlr = 1
+    local maxNum
+
+    if #PS:GetPlayers() <= 1 then maxNum = 1 
+    elseif #PS:GetPlayers() <= 2 then maxNum = 2
+    else maxNum = 3
     end
     
+    repeat
+        local selPlr = randomisedPlayer()
+        table.insert(userIds, selPlr.UserId)
+        currPlr += 1
+    until (currPlr > maxNum)
+    
+
     local data = {
-        serverId = tempKey,
+        serverId = jobId,
         uptime = 0,
-        name = tempKey,
-        players = userIds
+        name = jobId,
+        players = userIds,
+        version = self.version
     }
 
-    ServerIndexMap:SetAsync(tempKey, HTTP:JSONEncode(data), 10)
+    ServerIndexMap:SetAsync(jobId, HTTP:JSONEncode(data), 10)
 end
 
 function ServerService:RenderServers()
@@ -89,6 +110,11 @@ function ServerService:RenderServers()
 end
 
 function ServerService:KnitStart()
+    wait(1)
+    self:UploadToIndex("123")
+    self:UploadToIndex("456")
+    self:UploadToIndex("789")
+
     while task.wait() do
         self:RenderServers()
     end

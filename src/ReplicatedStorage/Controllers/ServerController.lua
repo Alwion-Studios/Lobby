@@ -42,8 +42,8 @@ function ServerController:CreateServerGui(data)
     local TS = Knit.GetService("TeleportService")
     local newGUI = self.ServerGuiToUse:Clone()
     newGUI:WaitForChild("Left").NameOfServer.Text = data["name"] or data["serverId"]
-    newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").PlayerCount.Text = #data["players"].. " / ".. "20"
-    newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").Version.Text = data["version"]
+    newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").PlayerCount.Text = #data["players"].. " / ".. "20" or "0 / 0"
+    newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").Version.Text = data["version"] or "1.0"
     
     newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverID", data["serverId"])
     newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverType", "public")
@@ -76,12 +76,15 @@ function ServerController:PlayerPortraits(userIds, frame)
     
     --Destroy all Portraits
     for _, portrait in pairs(PlayersList:GetChildren()) do
+        if not portrait:IsA("ImageLabel") then continue end
         portrait:Destroy()
     end
 
-    for _, id in pairs(userIds) do
+    for x, id in pairs(userIds) do
         local newPortrait = self.PortraitGuiToUse:Clone()
         newPortrait.Image = Players:GetUserThumbnailAsync(id, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+        newPortrait.Name = tostring(x)
+        newPortrait.ZIndex = x
         newPortrait.Parent = PlayersList
     end
 end
