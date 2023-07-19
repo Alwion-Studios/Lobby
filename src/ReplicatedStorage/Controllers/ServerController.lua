@@ -42,10 +42,18 @@ function ServerController:CreateServerGui(data)
     local TS = Knit.GetService("TeleportService")
     local newGUI = self.ServerGuiToUse:Clone()
     newGUI:WaitForChild("Left").NameOfServer.Text = data["name"] or data["serverId"]
-    newGUI:WaitForChild("Left").PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(uptime)
+    newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").PlayerCount.Text = #data["players"].. " / ".. "20"
     
     newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverID", data["serverId"])
     newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverType", "public")
+
+    --Set the Uptime Counter
+    task.spawn(function() --Uptime Counter
+        repeat wait(1)
+            uptime += 1
+            newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").Uptime.Text = hms(uptime)
+        until false
+    end)
 
     --Add to Collection
     self.ServerGuis[data["serverId"]] = newGUI
@@ -84,7 +92,7 @@ function ServerController:ServerChange(data)
 	if not data["players"] or #data["players"] <= 0 then return self:DeleteServer(id) end
 
     --Set Player Count
-    self.ServerGuis[id].Left.PlayerCount.Text = #data["players"].. " / ".. "20 || ".. hms(data["uptime"])
+    self.ServerGuis[id]:WaitForChild("Left"):WaitForChild("ServerInfo").PlayerCount.Text = #data["players"].. " / ".. "20"
 
     --Set Player Portraits
     self:PlayerPortraits(data["players"], self.ServerGuis[id])
