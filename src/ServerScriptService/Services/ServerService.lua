@@ -101,10 +101,10 @@ function ServerService:UploadToIndex(serverKeyTest)
 end
 
 function ServerService:KnitStart()
-    wait(1)
+    --[[wait(1)
     self:UploadToIndex("123")
     self:UploadToIndex("456")
-    self:UploadToIndex("789")
+    self:UploadToIndex("789")]]
 
     while task.wait() do
         self:RefreshServerList()
