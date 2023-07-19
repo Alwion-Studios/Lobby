@@ -46,6 +46,10 @@ function ServerService:Close()
     ServerIndexMap:RemoveAsync(ServerKey)
 end
 
+function ServerService.Client:GetAllServers()
+    return self.Server.OpenServers
+end
+
 function ServerService:GetAllServers()
     local ServerItems = {}
 
@@ -71,7 +75,42 @@ function ServerService:RenderServers()
     end
 end
 
+local function randomisedPlayer() 
+    return PS:GetPlayers()[1]
+end
+
+function ServerService:UploadToIndex(serverKeyTest)
+    local userIds = {}
+
+    local currPlr = 1
+    local maxNum = 3
+
+    if maxNum > 1 then
+        repeat
+            local selPlr = randomisedPlayer()
+            table.insert(userIds, selPlr.UserId)
+            currPlr += 1
+        until (currPlr > maxNum)
+    end
+
+    local data = {
+        serverId = serverKeyTest,
+        uptime = 0,
+        name = serverKeyTest,
+        players = userIds,
+        version = "1.0"
+    }
+
+    print(data)
+    ServerIndexMap:SetAsync(serverKeyTest, HTTP:JSONEncode(data), 240)
+end
+
 function ServerService:KnitStart()
+    wait(game.Loaded)
+    --[[self:UploadToIndex("123")
+    self:UploadToIndex("456")
+    self:UploadToIndex("789")]]
+
     while task.wait() do
         self:RenderServers()
     end

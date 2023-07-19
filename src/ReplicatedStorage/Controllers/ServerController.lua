@@ -49,12 +49,12 @@ function ServerController:CreateServerGui(data)
     newGUI:WaitForChild("Right").ServerJoin:SetAttribute("serverType", "public")
 
     --Set the Uptime Counter
-    task.spawn(function() --Uptime Counter
+    --[[task.spawn(function() --Uptime Counter
         repeat wait(1)
             uptime += 1
             newGUI:WaitForChild("Left"):WaitForChild("ServerInfo").Uptime.Text = hms(uptime)
         until false
-    end)
+    end)]]
 
     --Add to Collection
     self.ServerGuis[data["serverId"]] = newGUI
@@ -90,9 +90,11 @@ function ServerController:PlayerPortraits(userIds, frame)
 end
 
 function ServerController:ServerChange(data)
+    if typeof(data) ~= "table" or #data < 0 then return false end
+    if not self.ServerGuis[data["serverId"]] then return self:CreateServerGui(data) end
+	if not data["players"] or #data["players"] <= 0 then return self:DeleteServer(data["serverId"]) end
+
     local id = data["serverId"]
-    if not self.ServerGuis[id] then return self:CreateServerGui(data) end
-	if not data["players"] or #data["players"] <= 0 then return self:DeleteServer(id) end
 
     --Set Player Count
     self.ServerGuis[id]:WaitForChild("Left"):WaitForChild("ServerInfo").PlayerCount.Text = #data["players"].. " / ".. "20"
@@ -132,6 +134,22 @@ function ServerController:KnitInit()
 
     ServerService.RefreshServers:Connect(function(data) 
         self:ServerChange(data)
+    end)
+
+    task.spawn(function() --Refresh
+        repeat wait(5)
+            for id, renderedServer in pairs(self.ServerGuis) do
+                renderedServer:Destroy()
+                self.ServerGuis[id] = nil
+            end
+
+            ServerService:GetAllServers():andThen(function(value)
+                for _, openServer in pairs(value) do
+                    print(openServer)
+                    self:ServerChange(openServer)
+                end
+            end)
+        until false
     end)
 end
 
