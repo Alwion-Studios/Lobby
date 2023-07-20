@@ -94,7 +94,8 @@ function ServerService:UploadToIndex(serverKeyTest)
         uptime = 0,
         name = serverKeyTest,
         players = userIds,
-        version = "1.0"
+        version = "1.0",
+        test = true,
     }
 
     ServerIndexMap:SetAsync(serverKeyTest, HTTP:JSONEncode(data), 30)

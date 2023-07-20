@@ -20,8 +20,9 @@ local TeleportService = Knit.CreateService {
     Name = "TeleportService";
     ApprovedServers = {
         14105573507 --Melly's V1
-    },
-    LatestServer = 14105573507 -- Melly's V1
+    };
+    LatestServer = 14105573507; -- Melly's V1
+    InsiderRank = 1222;
 }
 
 function checkPermissions(player, groupId, rankId)
@@ -29,13 +30,24 @@ function checkPermissions(player, groupId, rankId)
 end
 
 function TeleportService.Client:TeleportRequestToInstance(player, id, serverType)
-    if not checkPermissions(player, 12523090, 99) then return false end
+    local NS = Knit.GetService("NotificationService")
+
+    if not checkPermissions(player, 12523090, 99) then 
+        NS:RequestNotification(player, "Teleport Request", "You lack the sufficient permissions!", nil)
+        return false 
+    end
     if serverType ~= "public" then return false end
     TS:TeleportToPlaceInstance(self.Server.LatestServer, id, player)
 end
 
 function TeleportService.Client:TeleportRequest(player)
-    if not checkPermissions(player, 12523090, 99) then return false end
+    local NS = Knit.GetService("NotificationService")
+
+    if not checkPermissions(player, 12523090, 99) then 
+        NS:RequestNotification(player, "Teleport Request", "You lack the sufficient permissions!", nil)
+        return false 
+    end
+
     TS:TeleportAsync(self.Server.LatestServer, {player})
 end
 
