@@ -94,18 +94,17 @@ function ServerService:UploadToIndex(serverKeyTest)
         uptime = 0,
         name = serverKeyTest,
         players = userIds,
-        version = "1.0",
-        test = true,
+        version = "1.0"
     }
 
     ServerIndexMap:SetAsync(serverKeyTest, HTTP:JSONEncode(data), 30)
 end
 
 function ServerService:KnitStart()
-    wait(1)
+    --[[wait(1)
     self:UploadToIndex("1234")
     self:UploadToIndex("456")
-    self:UploadToIndex("789")
+    self:UploadToIndex("789")]]
 
     while task.wait() do
         self:RefreshServerList()
