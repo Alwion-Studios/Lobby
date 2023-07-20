@@ -29,6 +29,7 @@ local ServerService = Knit.CreateService {
         ReplicateServerChange = Knit.CreateSignal(),
         ServerChanged = Knit.CreateSignal(),
         RefreshServers = Knit.CreateSignal(),
+        DeleteCreateButton = Knit.CreateSignal()
     },
     OpenServers = {}
 }
@@ -105,6 +106,12 @@ function ServerService:KnitStart()
     self:UploadToIndex("1234")
     self:UploadToIndex("456")
     self:UploadToIndex("789")]]
+
+    PS.PlayerAdded:Connect(function(player)
+        if not checkGamepass(player, 111306708) and not checkGamepass(player, 26328389) then
+            self.Client.DeleteCreateButton:FireAll()
+        end
+    end)
 
     while task.wait() do
         self:RefreshServerList()

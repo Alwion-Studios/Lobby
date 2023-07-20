@@ -179,6 +179,10 @@ function ServerController:KnitStart()
         self:Refresh()
     end)
 
+    ServerService.DeleteCreateButton:Connect(function()
+        Buttons.CreateButton:Destroy()
+    end)
+
     SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
         if #SearchBox.Text < 1 then 
             isSearching = false 
