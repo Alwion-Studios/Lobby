@@ -37,13 +37,17 @@ function PlayerService:KnitStart()
         newPlr:SetPlayer(plr)
         newPlr:SetDataStore()
 
-        --MS:ValidateBan(plr, {plr.UserId}, "Blacklisted", os.time() + 4195188000)
+        --MS:ValidateBan(plr, {3904628706, 119928277, 2785616570, 3340003283, 2527755169, 1653758893}, "Blacklisted", true)
+        --MS:ValidateBan(plr, {plr.UserId}, "Blacklisted", true)
         --MS:ValidateBanRemoval("server", plr, "expired")
-
+        
         local userBanDetails = MS:GetBan(plr.UserId)
 
         if userBanDetails and userBanDetails["expiryDate"] then
-            if userBanDetails["expiryDate"] > os.time() then self.Client.BannedUser:Fire(plr, userBanDetails["reason"], userBanDetails["expiryDate"], userBanDetails["responsibleMod"]) return true end
+            if userBanDetails["expiryDate"] == true or userBanDetails["expiryDate"] > os.time() then 
+                self.Client.BannedUser:Fire(plr, userBanDetails["reason"], userBanDetails["expiryDate"], userBanDetails["responsibleMod"]) 
+                return true 
+            end
 
             MS:ValidateBanRemoval("server", plr, "expired")
         end

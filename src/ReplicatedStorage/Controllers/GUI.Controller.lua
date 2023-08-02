@@ -43,22 +43,27 @@ function GuiController:KnitStart()
 
     self:Configure()
     PlayerService.BannedUser:Connect(function(reason, expiryDate, responsibleMod) 
-        local date = os.date("*t", expiryDate)
-        print(formatter:format(date.day))
+        local expiryString = "31/12/9999 @ 23:59"
+
+        if expiryDate ~= true then
+            local date = os.date("*t", expiryDate)
+            expiryString = (
+            formatter:format(date.day).. "/" ..
+            formatter:format(date.month).. "/" ..
+            formatter:format(date.year) .. " @ ".. 
+            formatter:format(date.hour).. ":" ..
+            formatter:format(date.min)
+            )
+        end
 
         for _, ui in pairs(HoldUI:GetDescendants()) do
             ui:Destroy()
         end
+
         local modUI = ModeratedUI:Clone()
         modUI:WaitForChild("DetailsHolder"):WaitForChild("Reason").Text = reason
         modUI:WaitForChild("DetailsHolder"):WaitForChild("Details").ResponsibleMod.Text = ("Issued By: ".. Players:GetNameFromUserIdAsync(responsibleMod))
-        modUI:WaitForChild("DetailsHolder"):WaitForChild("Details").ExpiryDate.Text = ("Expires: ".. 
-        formatter:format(date.day).. "/" ..
-        formatter:format(date.month).. "/" ..
-        formatter:format(date.year) .. " @ ".. 
-        formatter:format(date.hour).. ":" ..
-        formatter:format(date.min)
-        )
+        modUI:WaitForChild("DetailsHolder"):WaitForChild("Details").ExpiryDate.Text = ("Expires: ".. expiryString)
         modUI.Parent = HoldUI
 
         --Disable Topbar
