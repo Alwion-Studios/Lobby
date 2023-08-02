@@ -51,9 +51,8 @@ function ModerationService:ValidateBan(plr, targetedPlr, reason, expiryDate)
     for _, id in pairs(targetedPlr) do
         local targetedPlrEmulatedPlayer = {["UserId"] = id, ["Name"]="BAN"}
         self.BansDataStore:Action(targetedPlrEmulatedPlayer, reason, expiryDate, plr.UserId)
+        print("Banned ".. id.. " for ".. reason)
     end
-
-    print("Banned ".. targetedPlr.. " for ".. reason)
 end
 
 function ModerationService:ValidateBanRemoval(plr, targetedPlr, reason)
