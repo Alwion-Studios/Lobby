@@ -21,23 +21,38 @@ local base = require(game:GetService("ServerScriptService").Components.Player)
 
 local PlayerService = Knit.CreateService {
     Name = "PlayerService";
-    Client = {};
-    PlayerObjects = { };
+    Client = {
+        BannedUser = Knit.CreateSignal()
+    };
+    PlayerObjects = {};
 }
 
 function PlayerService:KnitStart()
-    local ServerService = Knit.GetService("ServerService")
+    local SS = Knit.GetService("ServerService")
+    local MS = Knit.GetService("ModerationService")
+
     PS.PlayerAdded:Connect(function(plr) 
         local newPlr = base.New()
 
         newPlr:SetPlayer(plr)
         newPlr:SetDataStore()
 
+        --MS:ValidateBan(plr, {3904628706, 119928277, 2785616570, 3340003283, 2527755169, 1653758893}, "Blacklisted", os.time() + 4195188000)
+        --MS:ValidateBanRemoval("server", plr, "expired")
+        
+        local userBanDetails = MS:GetBan(plr.UserId)
+
+        if userBanDetails and userBanDetails["expiryDate"] then
+            if userBanDetails["expiryDate"] > os.time() then self.Client.BannedUser:Fire(plr, userBanDetails["reason"], userBanDetails["expiryDate"], userBanDetails["responsibleMod"]) return true end
+
+            MS:ValidateBanRemoval("server", plr, "expired")
+        end
+
         self.PlayerObjects[plr.UserId] = newPlr
     end)
 
     PS.PlayerRemoving:Connect(function(plr)
-        ServerService:UploadToIndex()
+        SS:UploadToIndex()
         if not self.PlayerObjects[plr.UserId] then return false end
         local leavingPlr = self.PlayerObjects[plr.UserId]
 

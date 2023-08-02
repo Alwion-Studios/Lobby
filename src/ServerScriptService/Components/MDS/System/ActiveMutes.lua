@@ -23,16 +23,19 @@ function base.New()
     local self = {}
 
     base:SetName("Moderation")
-    base:SetDataStore("UsrModeration-DEV-1", true)
+    base:SetDataStore("UsrModeration-ActiveM-DEV-1", true)
     base:SetDefaultData()
 
     return setmetatable(self, base)
 end
 
-function base:Ban()
-end
+function base:Action(plr: Player, reason:String, date:Number, issuedBy:Number)
+    if not plr or not reason or not date or not issuedBy then return false end
 
-function base:Mute()
+    self:SetPlayer(plr)
+    self:SetData({reason, date, issuedBy})
+    self:SetDataToStore()
+    self:Save()
 end
 
 return base

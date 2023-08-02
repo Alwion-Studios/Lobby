@@ -17,7 +17,8 @@ local packages = game:GetService("ReplicatedStorage").Packages
 local Knit = require(packages.Knit)
 
 --MDS
-local moderationDS = require(script.Parent.Parent.Components.MDS.System.Moderation)
+local bansDS = require(script.Parent.Parent.Components.MDS.System.ActiveBans)
+local mutesDS = require(script.Parent.Parent.Components.MDS.System.ActiveMutes)
 
 local ModerationService = Knit.CreateService {
     Name = "ModerationService";
@@ -30,7 +31,8 @@ local ModerationService = Knit.CreateService {
             [12523090] = 10;
         };
     };
-    DataStore = moderationDS.New()
+    BansDataStore = bansDS.New();
+    mutesDS = mutesDS.New();
 }
 
 function ModerationService:CheckStatus(plr)
@@ -43,26 +45,64 @@ function ModerationService:CheckStatus(plr)
     return false
 end
 
-function ModerationService.Client:GetBans(plr) 
-    if not self.Server:CheckStatus(plr) then return false end
+function ModerationService:ValidateBan(plr, targetedPlr, reason, expiryDate)
+    if not self:CheckStatus(plr) then return false end
 
-    self.DataStore:GetAsync(self.Player.UserId)
+    for _, id in pairs(targetedPlr) do
+        local targetedPlrEmulatedPlayer = {["UserId"] = id, ["Name"]="BAN"}
+        self.BansDataStore:Action(targetedPlrEmulatedPlayer, reason, expiryDate, plr.UserId)
+    end
+
+    print("Banned ".. targetedPlr.. " for ".. reason)
+end
+
+function ModerationService:ValidateBanRemoval(plr, targetedPlr, reason)
+    if plr == "server" or self:CheckStatus(plr) then self.BansDataStore:RemovalAction(targetedPlr, reason) end
+    
+    print("Removed ".. targetedPlr.Name.. "'s ban")
+
+    return false
+end
+
+function ModerationService:ValidateMute(plr, targetedPlr, reason, expiryDate)
+    if not self:CheckStatus(plr) then return false end
+
+    local targetedPlrEmulatedPlayer = {["UserId"] = targetedPlr, ["Name"]="BAN"}
+    self.mutesDS:Action(targetedPlrEmulatedPlayer, reason, expiryDate, plr.UserId)
+end
+
+function ModerationService:GetBans(plr)
+    if not self:CheckStatus(plr) then return false end
+
+    local listSuccess, pages = pcall(function()
+        return self.BansDataStore.DataStore:ListKeysAsync("",10)
+    end)
+
+    return pages:GetCurrentPage()
+end
+
+function ModerationService:GetBan(targetID)
+    return self.BansDataStore.DataStore:GetAsync(targetID) or nil
+end
+
+function ModerationService.Client:GetBans(plr) 
+    return self.Server:GetBans(plr)
+end
+
+function ModerationService:GetMutes(plr)
+    if not self:CheckStatus(plr) then return false end
 end
 
 function ModerationService.Client:GetMutes(plr) 
-    if not self.Server:CheckStatus(plr) then return false end
+    return self.Server:GetMutes(plr)
 end
 
-function ModerationService.Client:RequestBan(plr) 
-    if not self.Server:CheckStatus(plr) then return false end
+function ModerationService.Client:RequestBan(plr, targetedPlr, reason, expiryDate) 
+    return self.Server:ValidateBan(plr, targetedPlr, reason, expiryDate)
 end
 
-function ModerationService.Client:RequestMute(plr) 
-    if not self.Server:CheckStatus(plr) then return false end
+function ModerationService.Client:RequestMute(plr, targetedPlr, reason, expiryDate) 
+    return self.Server:ValidateMute(plr, targetedPlr, reason, expiryDate)
 end
-
---[[function NotificationService:KnitStart()
-
-end]]
 
 return ModerationService

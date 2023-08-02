@@ -47,13 +47,11 @@ function DataSchema:GetName()
 end
 
 --Setter for Datastore
-function DataSchema:SetDataStore(name: String, isOrdered)
+function DataSchema:SetDataStore(name: String)
     if not name then return warn("A name needs to be declared to set any data") end
     
-    if not isOrdered then self.DataStore = DS:GetDataStore(name) return self.DataStore end
-    self.DataStore = DS:GetOrderedDataStore(name)
-    self.IsSorted = true
-    
+    self.DataStore = DS:GetDataStore(name)
+
     return true
 end
 
@@ -127,7 +125,7 @@ function DataSchema:SetDefaultData(defaultValue)
         self:SetDataToStore()
     end
 
-    if config["CreateInstanceValues"] and self:GetName() then
+    if config["CreateInstanceValues"] and self:GetName() and self:GetPlayer() then
         local data = self:GetAllData()
 
         local toStoreIn
