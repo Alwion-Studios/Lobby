@@ -9,24 +9,21 @@ Made by Marshmelly. All Rights Reserved.
 Contact me at Marshmelly#0001 if any issues arise.
 
 ]]
-
 --Imports
 local packages = game:GetService("ReplicatedStorage").Packages
-local Knit = require(packages.Knit)
+local Janitor = require(packages.Janitor)
 
---Game Icons
-local adminIco
+local topBar = require(game:GetService("ReplicatedStorage").Topbar)
 
-local GuiController = Knit.CreateController {
-    Name = "GuiController";
-}
+local Icon = {}
+Icon.__index = Icon
 
-function GuiController:Configure()
-    adminIco = require(script.Parent.Parent.Components.Icons["Admin.Panel.Icon"])
-end
+function Icon.New()
+    local self = setmetatable({}, Icon)
+    self.Janitor = Janitor.new()
+    self.Instance = topBar.new()
+    
+    return self
+end 
 
-function GuiController:KnitStart()
-    self:Configure()
-end
-
-return GuiController
+return Icon

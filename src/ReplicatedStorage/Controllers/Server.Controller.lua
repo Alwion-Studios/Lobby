@@ -9,7 +9,7 @@ Made by Marshmelly. All Rights Reserved.
 Contact me at Marshmelly#0001 if any issues arise.
 
 ]]
-
+wait(game.Loaded)
 --Imports
 local packages = game:GetService("ReplicatedStorage").Packages
 local Knit = require(packages.Knit)

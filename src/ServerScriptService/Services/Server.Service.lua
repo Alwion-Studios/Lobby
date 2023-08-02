@@ -108,6 +108,9 @@ function ServerService:KnitStart()
     self:UploadToIndex("789")]]
 
     PS.PlayerAdded:Connect(function(player)
+        local BS = game:GetService("BadgeService")
+        BS:AwardBadge(player.UserId, 2141462454)
+
         if not checkGamepass(player, 111306708) and not checkGamepass(player, 26328389) then
             self.Client.DeleteCreateButton:FireAll()
         end

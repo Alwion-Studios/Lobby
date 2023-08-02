@@ -14,19 +14,20 @@ Contact me at Marshmelly#0001 if any issues arise.
 local packages = game:GetService("ReplicatedStorage").Packages
 local Knit = require(packages.Knit)
 
---Game Icons
-local adminIco
-
-local GuiController = Knit.CreateController {
-    Name = "GuiController";
+local AdminGuiController = Knit.CreateController {
+    Name = "AdminGuiController";
+    CurrentPage = nil;
 }
 
-function GuiController:Configure()
-    adminIco = require(script.Parent.Parent.Components.Icons["Admin.Panel.Icon"])
+function AdminGuiController:TabChange()
 end
 
-function GuiController:KnitStart()
-    self:Configure()
+function AdminGuiController:OpenUI() 
+    if self.CurrentPage == nil then self.CurrentPage = "Bans" end
 end
 
-return GuiController
+function AdminGuiController:CloseUI() 
+    
+end
+
+return AdminGuiController
