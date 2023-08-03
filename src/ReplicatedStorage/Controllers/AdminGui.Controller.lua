@@ -43,8 +43,11 @@ end
 function AdminGuiController:RenderPage()
     if self.DataTbl ~= false then
         self.Contents.Information.Visible = false
-        for _,gui in pairs(self.Contents:GetDescendants()) do
-            if gui:IsA("Frame") then self.GUIs[gui.Name]:Destroy() end
+        for _,gui in pairs(self.Contents:GetChildren()) do
+            if gui:IsA("Frame") then 
+                self.GUIs[gui.Name]:Destroy()
+                --self.GUIs[tonumber(gui.Name)]:Destroy()
+            end
         end
 
         for _,id in pairs(self.DataTbl[self.CurrentPage]) do
