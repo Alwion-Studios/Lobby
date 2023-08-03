@@ -21,16 +21,19 @@ local Player = Players.LocalPlayer
 --UIs
 local AdminUI = game:GetService("ReplicatedStorage"):WaitForChild("GUIs"):WaitForChild("AdminUI")
 
+--Player Class
+local plrObj = require(script.Parent.Parent.Components.AdminUserGui)
+
 local AdminGuiController = Knit.CreateController {
     Name = "AdminGuiController";
     CurrentPage = 1;
-    CurrentTab = nil;
+    CurrentTab = "Bans";
     UI = AdminUI;
     PageUI = AdminUI:WaitForChild("Window"):WaitForChild("PageSys");
     Contents = AdminUI:WaitForChild("Window"):WaitForChild("Contents");
     Tabs = AdminUI:WaitForChild("Window"):WaitForChild("Options");
-    PlayerItm = game:GetService("ReplicatedStorage"):WaitForChild("GUIs"):WaitForChild("PlayerDet");
     DataTbl = {};
+    GUIs = {};
 }
 
 function AdminGuiController:EnableUI()
@@ -39,29 +42,45 @@ end
 
 function AdminGuiController:RenderPage()
     if self.DataTbl ~= false then
+        self.Contents.Information.Visible = false
         for _,gui in pairs(self.Contents:GetDescendants()) do
-            if gui:IsA("Frame") then gui:Destroy() end
+            if gui:IsA("Frame") then self.GUIs[gui.Name]:Destroy() end
         end
 
         for _,id in pairs(self.DataTbl[self.CurrentPage]) do
-            local newItm = self.PlayerItm:Clone()
-            newItm.Player.Image = Players:GetUserThumbnailAsync(id, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
-            newItm.Username.Text = Players:GetNameFromUserIdAsync(id)
-            newItm.Parent = self.Contents
+            self.GUIs[id] = plrObj.New(id, self.Contents)
         end
     end
 end
 
 function AdminGuiController:TabChange(newTab)
     local MS = Knit.GetService("ModerationService")
+    self:DisableInputs()
     if newTab == "Bans" then
+        self.Contents.Information.Visible = true
         MS:GetAllBans(Player):andThen(function(returned)
             self.DataTbl = returned
             self:RenderPage()
+            self:EnableInputs()
         end)
     elseif newTab == "Mutes" then
 
     end
+end
+
+function AdminGuiController:DisableInputs()
+    self.PageUI:WaitForChild("Back").Visible = false
+    self.PageUI:WaitForChild("Forward").Visible = false
+    self.Tabs:WaitForChild("Bans").Visible = false
+    self.Tabs:WaitForChild("Mutes").Visible = false
+end
+
+function AdminGuiController:EnableInputs()
+    if self.CurrentPage > 1 then self.PageUI:WaitForChild("Back").Visible = true end
+    if self.CurrentPage <= #self.DataTbl then self.PageUI:WaitForChild("Forward").Visible = true end
+
+    self.Tabs:WaitForChild("Bans").Visible = true
+    self.Tabs:WaitForChild("Mutes").Visible = true
 end
 
 function AdminGuiController:ChangePage()

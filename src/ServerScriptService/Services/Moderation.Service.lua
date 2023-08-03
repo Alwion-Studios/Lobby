@@ -119,8 +119,13 @@ function ModerationService:GetAllBans(plr)
     return pages or false
 end
 
-function ModerationService:GetBan(targetID)
-    return self.BansDataStore.DataStore:GetAsync(targetID) or nil
+function ModerationService:GetBan(plr, targetID)
+    if plr == "server" or self:CheckStatus(plr) then return self.BansDataStore.DataStore:GetAsync(targetID) or nil end
+    return false
+end
+
+function ModerationService.Client:GetBan(plr, target)
+    return self.Server:GetBan(plr, target)
 end
 
 function ModerationService.Client:GetBans(plr, page) 

@@ -33,8 +33,8 @@ function PlayerService:KnitStart()
     local MS = Knit.GetService("ModerationService")
 
     PS.PlayerAdded:Connect(function(plr) 
-        local userBanDetails = MS:GetBan(plr.UserId)
-        print(userBanDetails)
+        local userBanDetails = MS:GetBan("server", plr.UserId)
+
         if userBanDetails and userBanDetails["reason"] then
             if userBanDetails["expiryDate"] == true or userBanDetails["expiryDate"] == false or userBanDetails["expiryDate"] > os.time() then 
                 self.Client.BannedUser:Fire(plr, userBanDetails["reason"], userBanDetails["expiryDate"], userBanDetails["responsibleMod"]) 

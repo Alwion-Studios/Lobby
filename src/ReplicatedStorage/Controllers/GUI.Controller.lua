@@ -54,11 +54,11 @@ function GuiController:KnitStart()
         if expiryDate ~= true and expiryDate ~= false then
             local date = os.date("*t", expiryDate)
             expiryString = (
-            formatter:format(date.day).. "/" ..
-            formatter:format(date.month).. "/" ..
-            formatter:format(date.year) .. " @ ".. 
-            formatter:format(date.hour).. ":" ..
-            formatter:format(date.min)
+                formatter:format(date.day).. "/" ..
+                formatter:format(date.month).. "/" ..
+                formatter:format(date.year) .. " @ ".. 
+                formatter:format(date.hour).. ":" ..
+                formatter:format(date.min)
             )
         end
 
