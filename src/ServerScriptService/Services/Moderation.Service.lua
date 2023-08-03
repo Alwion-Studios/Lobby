@@ -28,7 +28,7 @@ local ModerationService = Knit.CreateService {
             2636513511
         };
         Groups = {
-            [12523090] = 10;
+            [32862712] = 1;
         };
     };
     BansDataStore = bansDS.New();
