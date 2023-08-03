@@ -27,8 +27,9 @@ local TeleportService = Knit.CreateService {
 
 function checkPermissions(player, groupId, rankId)
     local MS = Knit.GetService("ModerationService")
+    local banRecord = MS:GetBan(player.UserId) 
 
-    if MS:GetBan(player.UserId) then return false end
+    if banRecord and banRecord["expiryDate"] then return false end
     return player:GetRankInGroup(groupId) >= rankId or false
 end
 
@@ -46,6 +47,7 @@ end
 function TeleportService.Client:TeleportRequest(player)
     local NS = Knit.GetService("NotificationService")
 
+    print(checkPermissions(player, 12523090, 99))
     if not checkPermissions(player, 12523090, 99) then 
         NS:RequestNotification(player, "Teleport Request", "You lack the sufficient permissions!", nil)
         return false 

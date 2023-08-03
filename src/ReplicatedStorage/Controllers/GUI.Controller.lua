@@ -45,7 +45,7 @@ function GuiController:KnitStart()
     PlayerService.BannedUser:Connect(function(reason, expiryDate, responsibleMod) 
         local expiryString = "31/12/9999 @ 23:59"
 
-        if expiryDate ~= true then
+        if expiryDate ~= true and expiryDate ~= false then
             local date = os.date("*t", expiryDate)
             expiryString = (
             formatter:format(date.day).. "/" ..
