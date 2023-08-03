@@ -35,13 +35,19 @@ local GuiController = Knit.CreateController {
 local formatter = "%02i"
 
 function GuiController:Configure()
-    adminIco = require(script.Parent.Parent.Components.Icons["Admin.Panel.Icon"])
 end
 
 function GuiController:KnitStart()
     local PlayerService = Knit.GetService("PlayerService")
+    local AdminGuiController = Knit.GetController("AdminGuiController")
 
     self:Configure()
+
+    PlayerService.UserIsAdmin:Connect(function()
+        adminIco = require(script.Parent.Parent.Components.Icons["Admin.Panel.Icon"])
+        AdminGuiController:EnableUI()
+    end)
+
     PlayerService.BannedUser:Connect(function(reason, expiryDate, responsibleMod) 
         local expiryString = "31/12/9999 @ 23:59"
 

@@ -11,16 +11,19 @@ Contact me at Marshmelly#0001 if any issues arise.
 ]]
 --Imports
 local Base = require(script.Parent.Base)
+local packages = game:GetService("ReplicatedStorage").Packages
+local Knit = require(packages.Knit)
+local AdminGuiController = Knit.GetController("AdminGuiController")
 
 local Icon = Base.New().Instance
     :setProperty("deselectWhenOtherIconSelected", false)
     :bindToggleKey(Enum.KeyCode.V)
     :setLabel("Admin")
     :bindEvent("selected", function(ico)
-
+        AdminGuiController:OpenUI()
     end)
     :bindEvent("deselected", function(ico)
-        
+        AdminGuiController:CloseUI()
     end)
 
 return Icon

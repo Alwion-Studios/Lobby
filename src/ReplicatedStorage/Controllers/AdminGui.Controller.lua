@@ -13,21 +13,88 @@ Contact me at Marshmelly#0001 if any issues arise.
 --Imports
 local packages = game:GetService("ReplicatedStorage").Packages
 local Knit = require(packages.Knit)
+local Players = game:GetService("Players")
+
+--Player
+local Player = Players.LocalPlayer
+
+--UIs
+local AdminUI = game:GetService("ReplicatedStorage"):WaitForChild("GUIs"):WaitForChild("AdminUI")
 
 local AdminGuiController = Knit.CreateController {
     Name = "AdminGuiController";
-    CurrentPage = nil;
+    CurrentPage = 1;
+    CurrentTab = nil;
+    UI = AdminUI;
+    PageUI = AdminUI:WaitForChild("Window"):WaitForChild("PageSys");
+    Contents = AdminUI:WaitForChild("Window"):WaitForChild("Contents");
+    Tabs = AdminUI:WaitForChild("Window"):WaitForChild("Options");
+    PlayerItm = game:GetService("ReplicatedStorage"):WaitForChild("GUIs"):WaitForChild("PlayerDet");
+    DataTbl = {};
 }
 
-function AdminGuiController:TabChange()
+function AdminGuiController:EnableUI()
+    self.UI.Parent = Player.PlayerGui:WaitForChild("MellyCore")
+end
+
+function AdminGuiController:RenderPage()
+    if self.DataTbl ~= false then
+        for _,gui in pairs(self.Contents:GetDescendants()) do
+            if gui:IsA("Frame") then gui:Destroy() end
+        end
+
+        for _,id in pairs(self.DataTbl[self.CurrentPage]) do
+            local newItm = self.PlayerItm:Clone()
+            newItm.Player.Image = Players:GetUserThumbnailAsync(id, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size420x420)
+            newItm.Username.Text = Players:GetNameFromUserIdAsync(id)
+            newItm.Parent = self.Contents
+        end
+    end
+end
+
+function AdminGuiController:TabChange(newTab)
+    local MS = Knit.GetService("ModerationService")
+    if newTab == "Bans" then
+        MS:GetAllBans(Player):andThen(function(returned)
+            self.DataTbl = returned
+            self:RenderPage()
+        end)
+    elseif newTab == "Mutes" then
+
+    end
+end
+
+function AdminGuiController:ChangePage()
+    if self.CurrentPage <= 1 then self.PageUI:WaitForChild("Back").Visible = false else self.PageUI:WaitForChild("Back").Visible = true end
+    if self.CurrentPage >= #self.DataTbl then self.PageUI:WaitForChild("Forward").Visible = false else self.PageUI:WaitForChild("Forward").Visible = true end
+    self.PageUI.Page.Text = self.CurrentPage
+    self:RenderPage()
 end
 
 function AdminGuiController:OpenUI() 
-    if self.CurrentPage == nil then self.CurrentPage = "Bans" end
+    self:TabChange("Bans")
+    self.UI.Enabled = true
 end
 
 function AdminGuiController:CloseUI() 
-    
+    self.CurrentPage = 1
+    self.CurrentTab = nil
+    self.DataTbl = nil
+    self.UI.Enabled = false
+end
+
+function AdminGuiController:KnitStart()
+    self.PageUI:WaitForChild("Back").MouseButton1Click:Connect(function() 
+        if self.CurrentPage <= 1 then return false end
+        self.CurrentPage -= 1
+        self:ChangePage(self.CurrentTab)
+    end)
+
+    self.PageUI:WaitForChild("Forward").MouseButton1Click:Connect(function() 
+        self.PageUI:WaitForChild("Back").Visible = true
+        self.CurrentPage += 1
+        self:ChangePage(self.CurrentTab)
+    end)
 end
 
 return AdminGuiController

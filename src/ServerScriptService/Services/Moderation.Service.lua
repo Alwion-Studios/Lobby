@@ -33,7 +33,18 @@ local ModerationService = Knit.CreateService {
     };
     BansDataStore = bansDS.New();
     mutesDS = mutesDS.New();
+    pageObj = nil;
 }
+
+function pagesToTbl(pages)
+    local items = {}
+    while true do
+        table.insert(items, pages:GetCurrentPage())
+        if pages.IsFinished then break end
+        pages:AdvanceToNextPageAsync()
+    end
+    return items
+end
 
 function ModerationService:CheckStatus(plr)
     if self.Moderators.Users[plr.UserId] then return true end
@@ -70,22 +81,54 @@ function ModerationService:ValidateMute(plr, targetedPlr, reason, expiryDate)
     self.mutesDS:Action(targetedPlrEmulatedPlayer, reason, expiryDate, plr.UserId)
 end
 
-function ModerationService:GetBans(plr)
+function ModerationService:GetBans(plr, page)
     if not self:CheckStatus(plr) then return false end
 
     local listSuccess, pages = pcall(function()
-        return self.BansDataStore.DataStore:ListKeysAsync("",10)
+        local contents = pagesToTbl(self.pageObj)
+        local maxPageNum = #contents
+
+        if page > maxPageNum or not contents[page] then return false end
+
+        local toReturn = {}
+        for _, itm in pairs(contents[page]) do
+            table.insert(toReturn, {["userId"]=itm.KeyName})
+        end
+        return toReturn
     end)
 
-    return pages:GetCurrentPage()
+    print(pages)
+    return pages or false
+end
+
+function ModerationService:GetAllBans(plr)
+    if not self:CheckStatus(plr) then return false end
+    local listSuccess, pages = pcall(function()
+        local contents = pagesToTbl(self.pageObj)
+        local toReturn = {}
+
+        for x,page in pairs(contents) do
+            toReturn[x] = {}
+            for y,item in pairs(page) do
+                table.insert(toReturn[x], item.KeyName)
+            end
+        end
+        
+        return toReturn
+    end)
+    return pages or false
 end
 
 function ModerationService:GetBan(targetID)
     return self.BansDataStore.DataStore:GetAsync(targetID) or nil
 end
 
-function ModerationService.Client:GetBans(plr) 
-    return self.Server:GetBans(plr)
+function ModerationService.Client:GetBans(plr, page) 
+    return self.Server:GetBans(plr, page)
+end
+
+function ModerationService.Client:GetAllBans(plr, page) 
+    return self.Server:GetAllBans(plr)
 end
 
 function ModerationService:GetMutes(plr)
@@ -102,6 +145,10 @@ end
 
 function ModerationService.Client:RequestMute(plr, targetedPlr, reason, expiryDate) 
     return self.Server:ValidateMute(plr, targetedPlr, reason, expiryDate)
+end
+
+function ModerationService:KnitStart()
+    self.pageObj = self.BansDataStore.DataStore:ListKeysAsync("",10)
 end
 
 return ModerationService
