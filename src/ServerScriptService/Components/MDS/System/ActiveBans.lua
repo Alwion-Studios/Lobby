@@ -49,7 +49,7 @@ function base:RemovalAction(plr: Player)
     local historicData = self.HistoricDS:GetAsync(plr.UserId) or {}
     table.insert(historicData, currentData)
     
-    self:SetData()
+    self:SetData({["active"]=false})
     self:SetDataToStore()
     self:Save()
 end

@@ -63,13 +63,12 @@ function AdminUserGui:CreateGui()
 
                 if res["expiryDate"] ~= true and res["expiryDate"] ~= false then
                     local date = os.date("*t", res["expiryDate"])
-                    expiryString = (
+                    expiryString =
                         formatter:format(date.day).. "/" ..
                         formatter:format(date.month).. "/" ..
                         formatter:format(date.year) .. " @ ".. 
                         formatter:format(date.hour).. ":" ..
                         formatter:format(date.min)
-                    )
                 end
 
                 newItm.Content.ModDetails.ExpiryDate.Text = expiryString

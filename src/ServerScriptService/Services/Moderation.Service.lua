@@ -92,6 +92,8 @@ function ModerationService:GetBans(plr, page)
 
         local toReturn = {}
         for _, itm in pairs(contents[page]) do
+            if self:GetBan(plr, itm.KeyName)["active"] and self:GetBan(plr, itm.KeyName)["active"] == false then continue end
+            
             table.insert(toReturn, {["userId"]=itm.KeyName})
         end
         return toReturn
@@ -110,8 +112,11 @@ function ModerationService:GetAllBans(plr)
         for x,page in pairs(contents) do
             toReturn[x] = {}
             for y,item in pairs(page) do
-                table.insert(toReturn[x], item.KeyName)
+                if self:GetBan(plr, item.KeyName)["active"] ~= false then
+                    table.insert(toReturn[x], item.KeyName)
+                end
             end
+            if #toReturn[x] < 1 then toReturn[x] = nil end
         end
         
         return toReturn
