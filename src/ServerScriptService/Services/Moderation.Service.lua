@@ -47,7 +47,7 @@ function pagesToTbl(pages)
 end
 
 function ModerationService:CheckStatus(plr)
-    if self.Moderators.Users[plr.UserId] then return true end
+    if table.find(self.Moderators.Users, plr.UserId) then return true end
     
     for groupId, rankRequired in pairs(self.Moderators.Groups) do 
         if plr:IsInGroup(groupId) and plr:GetRankInGroup(groupId) >= rankRequired then return true end
@@ -125,7 +125,7 @@ function ModerationService:GetAllBans(plr)
 end
 
 function ModerationService:GetBan(plr, targetID)
-    if plr == "server" or self:CheckStatus(plr) then return self.BansDataStore.DataStore:GetAsync(targetID) or nil end
+    if plr == "server" or self:CheckStatus(plr) then return self.BansDataStore.DataStore:GetAsync(targetID or plr.UserId) or nil end
     return false
 end
 
