@@ -13,6 +13,7 @@ Contact me at Marshmelly#0001 if any issues arise.
 --Imports
 local packages = game:GetService("ReplicatedStorage").Packages
 local Knit = require(packages.Knit)
+
 local Players = game:GetService("Players")
 
 --Player
@@ -40,7 +41,7 @@ end
 function GuiController:KnitStart()
     local PlayerService = Knit.GetService("PlayerService")
     local AdminGuiController = Knit.GetController("AdminGuiController")
-
+    local TeleportService = Knit.GetService("TeleportService")
     self:Configure()
 
     PlayerService.UserIsAdmin:Connect(function()
@@ -75,6 +76,11 @@ function GuiController:KnitStart()
         --Disable Topbar
         adminIco:setEnabled(false)
         adminIco:deselect()
+    end)
+
+    TeleportService.TeleporationStarted:Connect(function()
+        HoldUI["Buttons"]:Destroy()
+        HoldUI["ServerList"]:Destroy()
     end)
 end
 

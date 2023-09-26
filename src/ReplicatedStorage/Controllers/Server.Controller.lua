@@ -11,6 +11,7 @@ Contact me at Marshmelly#0001 if any issues arise.
 ]]
 wait(game.Loaded)
 --Imports
+local TS = game:GetService("TeleportService")
 local packages = game:GetService("ReplicatedStorage").Packages
 local Knit = require(packages.Knit)
 local Players = game:GetService("Players")
@@ -157,6 +158,13 @@ function ServerController:KnitStart()
     User:WaitForChild("Details").Username.Text = Player.Name
     User:WaitForChild("Details").Rank.Text = Player:GetRoleInGroup(12523090)
 
+    local teleportUI = Player.PlayerGui:WaitForChild("MellyCore"):Clone()
+    teleportUI.Parent = game:GetService("ReplicatedStorage")
+    teleportUI.Name = "TeleportUI"
+    teleportUI["Hold"]["Buttons"]:Destroy()
+    teleportUI["Hold"]["ServerList"]:Destroy()
+    TS:SetTeleportGui(teleportUI)
+
     local ServerService = Knit.GetService("ServerService")
 
     Options:WaitForChild("Right").Refresh.MouseButton1Click:Connect(function()
@@ -165,8 +173,8 @@ function ServerController:KnitStart()
     end)
 
     Buttons.PlayButton.MouseButton1Click:Connect(function()
-        local teleportService = Knit.GetService("TeleportService")
-        teleportService:TeleportRequest()
+        local TeleportService = Knit.GetService("TeleportService")
+        TeleportService:TeleportRequest()
     end)
 
     ServerService.CreateServer:Fire("test", "test")

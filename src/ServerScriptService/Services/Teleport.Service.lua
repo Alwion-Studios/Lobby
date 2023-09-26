@@ -23,6 +23,9 @@ local TeleportService = Knit.CreateService {
     };
     LatestServer = 14105573507; -- Melly's V1
     InsiderRank = 1222;
+    Client = {
+        TeleporationStarted = Knit.CreateSignal();
+    }
 }
 
 function checkPermissions(player, groupId, rankId)
@@ -31,6 +34,14 @@ function checkPermissions(player, groupId, rankId)
 
     if banRecord and banRecord["expiryDate"] then return false end
     return player:GetRankInGroup(groupId) >= rankId or false
+end
+
+function TeleportService:BeginTeleport(player, serverId)
+    if not serverId then TS:TeleportAsync(self.LatestServer, player) 
+    else TS:TeleportToPlaceInstance(self.LatestServer, serverId, player)
+    end    
+    self.Client.TeleporationStarted:FireAll()
+    return true
 end
 
 function TeleportService.Client:TeleportRequestToInstance(player, id, serverType)
@@ -47,13 +58,12 @@ end
 function TeleportService.Client:TeleportRequest(player)
     local NS = Knit.GetService("NotificationService")
 
-    print(checkPermissions(player, 12523090, 99))
     if not checkPermissions(player, 12523090, 99) then 
         NS:RequestNotification(player, "Teleport Request", "You lack the sufficient permissions!", nil)
         return false 
     end
 
-    TS:TeleportAsync(self.Server.LatestServer, {player})
+    self.Server:BeginTeleport({player})
 end
 
 return TeleportService
