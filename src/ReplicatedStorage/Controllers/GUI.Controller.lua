@@ -81,6 +81,7 @@ function GuiController:KnitStart()
     TeleportService.TeleporationStarted:Connect(function()
         HoldUI["Buttons"]:Destroy()
         HoldUI["ServerList"]:Destroy()
+        Player.PlayerGui:WaitForChild("MellyCore").Logo.Visible = true
     end)
 end
 
