@@ -29,10 +29,6 @@ local TeleportService = Knit.CreateService {
 }
 
 function checkPermissions(player, groupId, rankId)
-    local MS = Knit.GetService("ModerationService")
-    local banRecord = MS:GetBan(player) 
-
-    if banRecord and banRecord["expiryDate"] then return false end
     return player:GetRankInGroup(groupId) >= rankId or false
 end
 
